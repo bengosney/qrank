@@ -8,7 +8,7 @@ from sortedm2m.fields import SortedManyToManyField
 
 
 class Player(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     rating = models.IntegerField(default=25)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
