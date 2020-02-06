@@ -5,7 +5,7 @@ from django.views.generic import CreateView
 from django.urls import reverse
 
 
-from .models import Player, Game
+from .models import Player, Match
 
 
 class PlayerListView(ListView):
@@ -21,5 +21,5 @@ class PlayerCreateView(CreateView):
 
 
 class GameCreateView(CreateView):
-    model = Game
+    model = Match
     fields = ('players',)

@@ -22,7 +22,7 @@ class Player(models.Model):
 
     @property
     def played(self):
-        return self.game_set.count
+        return self.match_set.count
 
     @property
     def rating_obj(self):
@@ -33,7 +33,7 @@ class Player(models.Model):
         self.rating = value[0].mu
 
 
-class Game(models.Model):
+class Match(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
@@ -78,7 +78,7 @@ def on_transaction_commit(func):
     return inner
 
 
-@receiver(post_save, sender=Game)
+@receiver(post_save, sender=Match)
 @on_transaction_commit
 def do_rank(sender, instance, created, **kwargs):
     instance.rank()
