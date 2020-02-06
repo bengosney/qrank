@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import transaction
 
 from trueskill import Rating, rate
 from sortedm2m.fields import SortedManyToManyField
@@ -28,6 +31,7 @@ class Game(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     players = SortedManyToManyField(Player)
+    ranked = models.BooleanField(default=False, editable=False)
 
     def __str__(self):
         return f'Played at {self.created_at}'
@@ -36,12 +40,15 @@ class Game(models.Model):
         adding = self._state.adding
         ret = super().save(*args, **kwargs)
 
-        if adding:
+        if adding and False:
             self.rank()
 
         return ret
 
     def rank(self):
+        if self.ranked:
+            return
+
         self.refresh_from_db()
         arg = []
         for player in self.players.all():
@@ -52,3 +59,19 @@ class Game(models.Model):
         for i, player in enumerate(self.players.all()):
             player.rating_obj = results[i]
             player.save()
+
+        self.ranked = True
+        self.save()
+
+
+def on_transaction_commit(func):
+    def inner(*args, **kwargs):
+        transaction.on_commit(lambda: func(*args, **kwargs))
+
+    return inner
+
+
+@receiver(post_save, sender=Game)
+@on_transaction_commit
+def do_rank(sender, instance, created, **kwargs):
+    instance.rank()

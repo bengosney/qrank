@@ -8,7 +8,7 @@ class PlayerAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['created_at', ]
+    list_display = ['created_at', 'ranked']
 
 
 admin.site.register(Game, GameAdmin)
