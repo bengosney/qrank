@@ -14,8 +14,15 @@ class Player(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
+    class Meta:
+        ordering = ['-rating', 'name']
+
     def __str__(self):
         return self.name
+
+    @property
+    def played(self):
+        return self.game_set.count
 
     @property
     def rating_obj(self):
