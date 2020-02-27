@@ -8,8 +8,10 @@ from sortedm2m.fields import SortedManyToManyField
 
 
 class Player(models.Model):
+    START_SCORE = 100
+
     name = models.CharField(max_length=255, unique=True)
-    rating = models.IntegerField(default=25)
+    rating = models.IntegerField(default=START_SCORE)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -52,8 +54,8 @@ class Match(models.Model):
 
         return ret
 
-    def rank(self):
-        if self.ranked:
+    def rank(self, force=False):
+        if self.ranked and not force:
             return
 
         self.refresh_from_db()
@@ -69,6 +71,7 @@ class Match(models.Model):
 
         self.ranked = True
         self.save()
+
 
 
 def on_transaction_commit(func):
