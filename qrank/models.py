@@ -11,7 +11,7 @@ class Player(models.Model):
     START_SCORE = 100
 
     name = models.CharField(max_length=255, unique=True)
-    rating = models.IntegerField(default=START_SCORE)
+    rating = models.FloatField(default=START_SCORE)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
