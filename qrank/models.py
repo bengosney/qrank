@@ -35,12 +35,26 @@ class Player(models.Model):
         self.rating = value[0].mu
 
 
+class Game(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    player_count = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+
+    def __str__(self):
+        return self.name
+
+
 class Match(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     players = SortedManyToManyField(Player)
     ranked = models.BooleanField(default=False, editable=False)
+
+    game = models.ForeignKey(Game, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Played at {self.created_at}'
@@ -70,10 +84,21 @@ class Match(models.Model):
             player.save()
 
         self.ranked = True
-        self.save()
+        self.save()    
+    
 
+class PlayerRanks(models.Model):
+    START_SCORE = 100
+    
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
 
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
+    rating = models.FloatField(default=START_SCORE)
+
+    
 def on_transaction_commit(func):
     def inner(*args, **kwargs):
         transaction.on_commit(lambda: func(*args, **kwargs))
