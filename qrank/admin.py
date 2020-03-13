@@ -8,10 +8,12 @@ class PlayerAdmin(admin.ModelAdmin):
 
 
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ['created_at', 'ranked']
+    list_display = ['playerString', 'game', 'created_at', 'ranked']
+
 
 class GameAdmin(admin.ModelAdmin):
     list_display = ['name']
+
 
 admin.site.register(Match, MatchAdmin)
 admin.site.register(Player, PlayerAdmin)

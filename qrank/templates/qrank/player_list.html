@@ -12,18 +12,16 @@
     </tr>
     </thead>
     <tbody>
-      {% for player in object_list %}
-      {% if player.played > 0 %}
-      <tr>
+    {% for player in object_list|dictsort:"rating" reversed%}
+    <tr>
         <th scope="row">#{{ forloop.counter }}</th>
         <td>{{ player.name }}</td>
         <td>{{ player.rating }}</td>
         <td>{{ player.played }}</td>
-      </tr>
-      {% endif %}
-      {% empty %}    
-      <p>No players yet.</p>
-      {% endfor %}
+    </tr>
+    {% empty %}
+    <p>No players yet.</p>
+    {% endfor %}
     </tbody>
 </table>
 {% endblock %}
