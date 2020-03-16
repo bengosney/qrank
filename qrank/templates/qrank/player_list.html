@@ -1,7 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Player List{% endblock %}
+{% block title %}
+{% if game != None %}
+{{ game.name }}
+{% else %}
+Player List
+{% endif %}
+{% endblock %}
+
 {% block body %}
+{% if game != None %}
+<h1>{{ game.name }}</h1>
+{% else %}
 <h1>Player List</h1>
+{% endif %}
 <table class="table">
     <thead>
     <tr>
@@ -17,7 +28,7 @@
         <th scope="row">#{{ forloop.counter }}</th>
         <td>{{ player.name }}</td>
         <td>{{ player.rating }}</td>
-        <td>{{ player.played }}</td>
+        <td>{{ player.num_matches }}</td>
     </tr>
     {% empty %}
     <p>No players yet.</p>

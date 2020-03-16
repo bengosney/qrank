@@ -12,7 +12,7 @@ class MatchAdmin(admin.ModelAdmin):
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'slug']
 
 
 admin.site.register(Match, MatchAdmin)

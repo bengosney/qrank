@@ -6,6 +6,8 @@ from django.db import transaction
 from trueskill import Rating, rate
 from sortedm2m.fields import SortedManyToManyField
 
+from django_extensions.db.fields import AutoSlugField
+
 
 class Player(models.Model):
     START_SCORE = 100
@@ -13,6 +15,7 @@ class Player(models.Model):
     name = models.CharField(max_length=255, unique=True)
     # rating = models.FloatField(default=START_SCORE)
 
+    slug = AutoSlugField(populate_from='name')
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
@@ -49,6 +52,7 @@ class Game(models.Model):
     name = models.CharField(max_length=255, unique=True)
     player_count = models.IntegerField()
 
+    slug = AutoSlugField(populate_from='name')
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 

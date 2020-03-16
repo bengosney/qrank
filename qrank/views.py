@@ -5,10 +5,35 @@ from django.views.generic import CreateView
 from django.urls import reverse
 from django.db.models import Count
 
-from .models import Player, Match
+from .models import Player, Match, Game
 
 
 class PlayerListView(ListView):
+    model = Player
+
+    def get_game(self):
+        if 'game' in self.kwargs:
+            return Game.objects.get(slug=self.kwargs['game'])
+
+        return None
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        game = self.get_game()
+        if game is not None:
+            qs = qs.filter(match__game=game)
+
+        return qs.annotate(num_matches=Count('match')).filter(num_matches__gt=0)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game'] = self.get_game()
+
+        return context
+
+
+class GameDetailsView(ListView):
     model = Player
 
     def get_queryset(self):
