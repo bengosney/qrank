@@ -39,7 +39,7 @@ class PlayerListView(ListView):
         else:
             qs = qs.filter(game__isnull=True)
 
-        return qs#.annotate(num_matches=Count('match')).filter(num_matches__gt=0)
+        return qs.filter(match_count__gt=0)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

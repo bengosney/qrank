@@ -33,7 +33,7 @@ class Player(models.Model):
         return self.get_rating_for_game(None).rating
 
     def get_rating_for_game(self, game):
-        rank = self.playerranks_set.filter(game=game).first()
+        rank = self.rank_set.filter(game=game).first()
 
         if rank is None:
             rank = Rank(player=self, game=game)
@@ -89,6 +89,7 @@ class Match(models.Model):
         for i, player in enumerate(self.players.all()):
             rating = player.get_rating_for_game(self.game)
             rating.rating_obj = results[i]
+            rating.match_count += 1
             rating.save()
 
             if self.game is not None:
@@ -108,6 +109,7 @@ class Rank(models.Model):
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
+    match_count = models.IntegerField(default=0)
 
     rating = models.FloatField(default=START_SCORE)
 
