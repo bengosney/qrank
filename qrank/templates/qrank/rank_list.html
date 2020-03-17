@@ -23,12 +23,12 @@ Player List
     </tr>
     </thead>
     <tbody>
-    {% for player in object_list|dictsort:"rating" reversed%}
+    {% for rank in object_list|dictsort:"rating" reversed%}
     <tr>
         <th scope="row">#{{ forloop.counter }}</th>
-        <td>{{ player.name }}</td>
-        <td>{{ player.rating }}</td>
-        <td>{{ player.num_matches }}</td>
+        <td>{{ rank.player.name }}</td>
+        <td>{{ rank.rating }}</td>
+        <td>{{ rank.num_matches }}</td>
     </tr>
     {% empty %}
     <p>No players yet.</p>

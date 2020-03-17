@@ -5,11 +5,15 @@ from django.views.generic import CreateView
 from django.urls import reverse
 from django.db.models import Count
 
-from .models import Player, Match, Game
+from .models import Player, Match, Game, Rank
+
+
+class GameListView(ListView):
+    model = Game
 
 
 class PlayerListView(ListView):
-    model = Player
+    model = Rank
 
     def get_game(self):
         if 'game' in self.kwargs:
@@ -22,9 +26,11 @@ class PlayerListView(ListView):
 
         game = self.get_game()
         if game is not None:
-            qs = qs.filter(match__game=game)
+            qs = qs.filter(game=game)
+        else:
+            qs = qs.filter(game__isnull=True)
 
-        return qs.annotate(num_matches=Count('match')).filter(num_matches__gt=0)
+        return qs#.annotate(num_matches=Count('match')).filter(num_matches__gt=0)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

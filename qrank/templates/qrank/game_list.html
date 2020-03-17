@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Game List{% endblock %}
+
+{% block body %}
+<h1>Game List</h1>
+<table class="table">
+    {% for game in object_list %}
+    <ul>
+        <li>
+            <a href="{% url 'player_list' game.slug %}">{{ game.name }}</a>
+        </li>
+    </ul>
+    {% empty %}
+    <p>Games yet.</p>
+    {% endfor %}
+</table>
+{% endblock %}

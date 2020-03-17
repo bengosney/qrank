@@ -13,7 +13,6 @@ class Player(models.Model):
     START_SCORE = 100
 
     name = models.CharField(max_length=255, unique=True)
-    # rating = models.FloatField(default=START_SCORE)
 
     slug = AutoSlugField(populate_from='name')
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -37,7 +36,7 @@ class Player(models.Model):
         rank = self.playerranks_set.filter(game=game).first()
 
         if rank is None:
-            rank = PlayerRanks(player=self, game=game)
+            rank = Rank(player=self, game=game)
             rank.save()
 
         return rank
@@ -92,11 +91,16 @@ class Match(models.Model):
             rating.rating_obj = results[i]
             rating.save()
 
+            if self.game is not None:
+                rating = player.get_rating_for_game(None)
+                rating.rating_obj = results[i]
+                rating.save()
+
         self.ranked = True
         self.save()
 
 
-class PlayerRanks(models.Model):
+class Rank(models.Model):
     START_SCORE = 100
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
