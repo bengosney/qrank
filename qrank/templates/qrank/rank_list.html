@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}
+{% if game != None %}
+{{ game.name }}
+{% else %}
+Player List
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{% if game != None %}
+<h1>{{ game.name }}</h1>
+{% else %}
+<h1>Player List</h1>
+{% endif %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Pos</th>
+        <th scope="col">Name</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Matches</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for rank in object_list|dictsort:"rating" reversed%}
+    <tr>
+        <th scope="row">#{{ forloop.counter }}</th>
+        <td>{{ rank.player.name }}</td>
+        <td>{{ rank.rating }}</td>
+        <td>{{ rank.match_count }}</td>
+    </tr>
+    {% empty %}
+    <p>No players yet.</p>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -6,18 +6,20 @@ from django.db import transaction
 from trueskill import Rating, rate
 from sortedm2m.fields import SortedManyToManyField
 
+from django_extensions.db.fields import AutoSlugField
+
 
 class Player(models.Model):
     START_SCORE = 100
 
     name = models.CharField(max_length=255, unique=True)
-    rating = models.FloatField(default=START_SCORE)
 
+    slug = AutoSlugField(populate_from='name')
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
-        ordering = ['-rating', 'name']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -27,12 +29,34 @@ class Player(models.Model):
         return self.match_set.count
 
     @property
-    def rating_obj(self):
-        return Rating(self.rating)
+    def rating(self):
+        return self.get_rating_for_game(None).rating
 
-    @rating_obj.setter
-    def rating_obj(self, value):
-        self.rating = value[0].mu
+    def get_rating_for_game(self, game):
+        rank = self.rank_set.filter(game=game).first()
+
+        if rank is None:
+            rank = Rank(player=self, game=game)
+            rank.save()
+
+        return rank
+
+    def set_rating_for_game(self, game, rating):
+        rank = self.get_rating_for_game(game)
+        rank.rating = rating
+        rank.save()
+
+
+class Game(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    player_count = models.IntegerField()
+
+    slug = AutoSlugField(populate_from='name')
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Match(models.Model):
@@ -42,17 +66,14 @@ class Match(models.Model):
     players = SortedManyToManyField(Player)
     ranked = models.BooleanField(default=False, editable=False)
 
+    game = models.ForeignKey(Game, blank=True, null=True, on_delete=models.CASCADE)
+
     def __str__(self):
-        return f'Played at {self.created_at}'
+        return f'{self.playerString} played {self.game} as {self.created_at}'
 
-    def save(self, *args, **kwargs):
-        adding = self._state.adding
-        ret = super().save(*args, **kwargs)
-
-        if adding and False:
-            self.rank()
-
-        return ret
+    @property
+    def playerString(self):
+        return ", ".join([str(p) for p in self.players.all()])
 
     def rank(self, force=False):
         if self.ranked and not force:
@@ -61,17 +82,44 @@ class Match(models.Model):
         self.refresh_from_db()
         arg = []
         for player in self.players.all():
-            arg.append((player.rating_obj,))
+            arg.append((player.get_rating_for_game(self.game).rating_obj,))
 
         results = rate(arg)
 
         for i, player in enumerate(self.players.all()):
-            player.rating_obj = results[i]
-            player.save()
+            rating = player.get_rating_for_game(self.game)
+            rating.rating_obj = results[i]
+            rating.match_count += 1
+            rating.save()
+
+            if self.game is not None:
+                rating = player.get_rating_for_game(None)
+                rating.rating_obj = results[i]
+                rating.save()
 
         self.ranked = True
         self.save()
 
+
+class Rank(models.Model):
+    START_SCORE = 100
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
+    match_count = models.IntegerField(default=0)
+
+    rating = models.FloatField(default=START_SCORE)
+
+    @property
+    def rating_obj(self):
+        return Rating(self.rating)
+
+    @rating_obj.setter
+    def rating_obj(self, value):
+        self.rating = value[0].mu
 
 
 def on_transaction_commit(func):
