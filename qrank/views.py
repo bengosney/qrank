@@ -5,16 +5,16 @@ from django.views.generic import CreateView
 from django.views.generic.edit import FormView
 from django.http import Http404
 
-
 from django.urls import reverse
 from django.db.models import Count
 
-from .forms import NameForm
+from .forms import MatchAddForm
 
 from .models import Player, Match, Game, Rank
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class GameListView(ListView):
+class GameListView(LoginRequiredMixin, ListView):
     model = Game
 
 
@@ -69,14 +69,23 @@ class GameCreateView(CreateView):
 
 
 class AddMatchView(FormView):
-    form_class = NameForm
+    form_class = MatchAddForm
     template_name = 'qrank/add_match.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_game(self):
         try:
-            context['game'] = Game.objects.get(slug=self.kwargs['game'])
+            return Game.objects.get(slug=self.kwargs['game'])
         except Game.DoesNotExist:
             raise Http404("Game does not exist")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game'] = self.get_game()
+
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['game'] = self.get_game()
+
+        return kwargs

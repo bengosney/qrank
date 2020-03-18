@@ -66,7 +66,7 @@ class Match(models.Model):
     players = SortedManyToManyField(Player)
     ranked = models.BooleanField(default=False, editable=False)
 
-    game = models.ForeignKey(Game, blank=True, null=True, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.playerString} played {self.game} as {self.created_at}'

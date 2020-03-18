@@ -27,7 +27,7 @@
             <tr>
                 <th scope="row">#{{ forloop.counter }}</th>
                 <td>{{ rank.player.name }}</td>
-                <td>{{ rank.rating }}</td>
+                <td>{{ rank.rating|floatformat:"2" }}</td>
                 <td>{{ rank.match_count }}</td>
             </tr>
         {% empty %}
@@ -35,4 +35,7 @@
         {% endfor %}
         </tbody>
     </table>
+    <p>
+        <a href="{% url 'add_match' game.slug %}">Add Match</a>
+    </p>
 {% endblock %}
