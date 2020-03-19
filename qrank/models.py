@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import transaction
+from django.urls import reverse
+
 
 from trueskill import Rating, rate
 from sortedm2m.fields import SortedManyToManyField
@@ -58,6 +60,10 @@ class Game(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def url(self):
+        return reverse('player_list', args=[self.slug])
+
 
 class Match(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -69,7 +75,7 @@ class Match(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.playerString} played {self.game} as {self.created_at}'
+        return f'{self.playerString} played {self.game} at {self.created_at}'
 
     @property
     def playerString(self):
@@ -77,6 +83,9 @@ class Match(models.Model):
 
     def rank(self, force=False):
         if self.ranked and not force:
+            return
+
+        if self.players.all().count() != self.game.player_count:
             return
 
         self.refresh_from_db()

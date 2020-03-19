@@ -89,3 +89,20 @@ class AddMatchView(FormView):
         kwargs['game'] = self.get_game()
 
         return kwargs
+
+    def form_valid(self, form):
+        match = Match()
+        match.game = form.get_game()
+        match.save()
+
+        places = form.get_places()
+
+        for player in places:
+            match.players.add(player)
+
+        match.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.get_game().url

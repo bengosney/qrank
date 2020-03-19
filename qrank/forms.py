@@ -1,4 +1,6 @@
 import math
+import re
+
 from django import forms
 
 from .models import Game, Player
@@ -18,3 +20,16 @@ class MatchAddForm(forms.Form):
         for i in range(game.player_count):
             label = f"{ordinal(i + 1)} place"
             self.fields[f"place_{i}"] = forms.ModelChoiceField(queryset=Player.objects.all(), label=label)
+
+    def get_game(self):
+        return Game.objects.get(pk=self.initial['game'])
+
+    def get_places(self):
+        places = [None] * self.cleaned_data['game'].player_count
+        place_match = re.compile('place_([0-9]+)')
+        for key in self.cleaned_data:
+            m = place_match.match(key)
+            if m is not None:
+                places[int(m.group(1))] = self.cleaned_data[key]
+
+        return places
