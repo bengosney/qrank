@@ -18,7 +18,7 @@ class GameListView(LoginRequiredMixin, ListView):
     model = Game
 
 
-class PlayerListView(ListView):
+class PlayerListView(LoginRequiredMixin, ListView):
     model = Rank
 
     def get_game(self):
@@ -48,27 +48,27 @@ class PlayerListView(ListView):
         return context
 
 
-class GameDetailsView(ListView):
+class GameDetailsView(LoginRequiredMixin, ListView):
     model = Player
 
     def get_queryset(self):
         return super().get_queryset().annotate(num_matches=Count('match')).filter(num_matches__gt=0)
 
 
-class PlayerCreateView(CreateView):
+class PlayerCreateView(LoginRequiredMixin, CreateView):
     model = Player
     fields = ('name',)
 
     def get_success_url(self):
-        return reverse('player_list')
+        return reverse('game_list')
 
 
-class GameCreateView(CreateView):
+class GameCreateView(LoginRequiredMixin, CreateView):
     model = Match
     fields = ('players',)
 
 
-class AddMatchView(FormView):
+class AddMatchView(LoginRequiredMixin, FormView):
     form_class = MatchAddForm
     template_name = 'qrank/add_match.html'
 

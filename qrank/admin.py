@@ -4,7 +4,7 @@ from .models import Match, Player, Game
 
 
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ['name', 'rating']
+    list_display = ['name', ]
 
 
 class MatchAdmin(admin.ModelAdmin):
