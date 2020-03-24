@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import django_heroku
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -87,6 +88,10 @@ DATABASES = {
     }
 }
 
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -132,3 +137,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 django_heroku.settings(locals())
+
+
